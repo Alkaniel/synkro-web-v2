@@ -1,10 +1,9 @@
 import { useNavigate } from 'react-router-dom';
 import {Button} from "@/components/ui/button.tsx";
 
-export default function Dashboard() {
+export default function ProjectsList() {
     const navigate = useNavigate();
     const handleLogout = () => {
-      localStorage.removeItem('token');
       navigate('/login');
     };
 

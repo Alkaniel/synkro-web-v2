@@ -1,6 +1,6 @@
 import {useState} from "react";
 import {Mail, Lock, EyeOff, Eye, AlertCircle} from "lucide-react";
-import {api} from "../api/client.ts";
+import {api} from "@/api/client.ts";
 
 import {Button} from "@/components/ui/button.tsx";
 import {Input} from "@/components/ui/input.tsx";
@@ -26,7 +26,7 @@ export default function Login() {
         try {
             const response = await api.post<{accessToken: string}>('/auth/login', { email, password }, { credentials: "include" });
             login(response.accessToken)
-            navigate('/dashboard');
+            navigate('/projects');
         } catch (err: any) {
             setError(err.message);
         }

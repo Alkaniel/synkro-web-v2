@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { User, Lock, Mail, ArrowRight, ArrowLeft, AlertCircle, Eye, EyeOff } from "lucide-react";
-import { api } from "../api/client.ts";
+import { api } from "@/api/client.ts";
 
 import synkroLogo from "@/assets/logo_synkro_condensed.svg";
 
@@ -71,7 +71,7 @@ export default function Register() {
                 const response = await api.post<{accessToken: string }>('/auth/register', payload, { credentials: "include" });
                 login(response.accessToken)
 
-                navigate('/dashboard');
+                navigate('/projects');
 
             } catch (err: any) {
                 setError(err.message);
@@ -233,7 +233,7 @@ export default function Register() {
 
             <div className="mt-8 text-xs font-medium text-white/90">
                 Déjà un compte ?{" "}
-                <a href="/login" className="font-bold hover:underline transition-all">
+                <a href="/src/features/auth/pages/Login" className="font-bold hover:underline transition-all">
                     Se connecter
                 </a>
             </div>

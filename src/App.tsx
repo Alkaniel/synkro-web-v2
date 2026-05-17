@@ -1,22 +1,12 @@
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Login from "@/pages/Login.tsx";
-import AuthGuard from "@/components/ui/authGuard.tsx";
-import Dashboard from "@/pages/Dashboard.tsx";
-import Register from "@/pages/Register.tsx";
+import { BrowserRouter } from "react-router-dom";
+import AppRoutes from "@/routes.tsx";
+import {Toaster} from "sonner";
 
 function App() {
   return (
       <BrowserRouter>
-          <Routes>
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-
-              <Route element={<AuthGuard/>}>
-                  <Route path="/dashboard" element={<Dashboard />}/>
-              </Route>
-
-              <Route path="*" element={<Navigate to="/login" replace />} />
-          </Routes>
+          <AppRoutes />
+          <Toaster position="top-right" richColors closeButton />
       </BrowserRouter>
   )
 }

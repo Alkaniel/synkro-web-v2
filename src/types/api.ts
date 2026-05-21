@@ -36,7 +36,7 @@ export interface ProjectResponse {
 
 export interface ParticipantResponse {
     user: UserSummary;
-    role: ProjectRole;
+    projectRole: ProjectRole;
 }
 
 export interface ProjectDetailResponse extends ProjectResponse {

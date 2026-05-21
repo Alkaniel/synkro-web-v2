@@ -1,68 +1,72 @@
 import {createContext, type ReactNode, useContext, useEffect, useState} from "react";
-import {api, setApiToken} from "@/api/client.ts";
+import type {UserResponse} from "@/types/api.ts";
+import {authApi} from "@/api/auth.ts";
+import {setApiToken} from "@/api/client.ts";
+import {ApiError} from "@/api/errors.ts";
 
-interface AuthContextType {
-    accessToken: string | null;
-    isAuthenticated: boolean;
+interface AuthContextValue {
+    user: UserResponse | null;
     loading: boolean;
-    login: (token: string) => void;
-    logout: () => void;
+    login: (email: string, password: string) => Promise<void>;
+    register: (username: string, email: string, password: string) => Promise<void>
+    logout: () => Promise<void>;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextValue | null>(null);
 
-export function AuthProvider({ children }: { children: ReactNode }) {
-    const [accessToken, setAccessToken] = useState<string | null>(null);
+export function AuthProvider({ children }: { children : ReactNode }) {
+    const [user, setUser] = useState<UserResponse | null>(null);
     const [loading, setLoading] = useState(true);
 
-    const login = (token: string) => {
-        setAccessToken(token);
-        setApiToken(token);
+    useEffect(() => {
+        (async () => {
+            try {
+                const { accessToken } = await authApi.refresh();
+                setApiToken(accessToken);
+                const me = await authApi.me();
+                setUser(me);
+            } catch {
+                setApiToken(null)
+                setUser(null)
+            } finally {
+                setLoading(false);
+            }
+        })();
+    }, []);
+
+    const login = async (email: string, password: string) => {
+        const { accessToken } = await authApi.login({email, password});
+        setApiToken(accessToken);
+        const me = await authApi.me();
+        setUser(me);
+    };
+
+    const register = async (username: string, email: string, password: string) => {
+        const { accessToken } = await authApi.register({username, email, password});
+        setApiToken(accessToken);
+        const me = await authApi.me();
+        setUser(me);
     };
 
     const logout = async () => {
         try {
-            await api.post("/auth/logout", {}, { credentials: "include"});
-        } catch (err) {
-            console.error("Error logging out:", err);
-        } finally {
-            setAccessToken(null);
-            setApiToken(null);
+            await authApi.logout();
+        } catch (e) {
+            if (!(e instanceof ApiError)) throw e;
         }
+        setApiToken(null);
+        setUser(null);
     };
 
-    useEffect(() => {
-       const silentRefresh = async () => {
-           try {
-               const response = await api.post<{ accessToken: string }>(
-                   "/auth/refresh",
-                   {},
-                   { credentials: "include" }
-               );
-               setAccessToken(response.accessToken);
-               setApiToken(response.accessToken);
-           } catch (err) {
-               setAccessToken(null);
-               setApiToken(null);
-           } finally {
-               setLoading(false);
-           }
-       }
-
-       silentRefresh();
-    }, []);
-
     return (
-        <AuthContext.Provider value={{accessToken, isAuthenticated: !!accessToken, loading, login, logout}}>
+        <AuthContext.Provider value={{user, loading, login, register, logout}}>
             {children}
         </AuthContext.Provider>
     )
 }
 
 export function useAuth() {
-    const context = useContext(AuthContext);
-    if (!context) {
-        throw new Error("useAuth must be used within an AuthProvider");
-    }
-    return context;
+    const ctx = useContext(AuthContext);
+    if (!ctx) throw new Error("useAuth must be used inside <AuthProvider>");
+    return ctx;
 }

@@ -1,73 +1,88 @@
-# React + TypeScript + Vite
+# Synkro — Client web
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Interface web de l'application Synkro, une application de gestion de projet développée dans le cadre d'un test technique.
 
-Currently, two official plugins are available:
+## Présentation
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+Synkro permet à des utilisateurs authentifiés de créer et gérer des projets, d'y ajouter des tâches, de suivre leur avancement via un système de statuts, et de collaborer en invitant des participants qui peuvent se voir assigner des tâches.
 
-## React Compiler
+Ce dépôt contient uniquement le client web. L'API backend est disponible dans un dépôt séparé.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Stack technique
 
-## Expanding the ESLint configuration
+- **React 19** + **TypeScript**
+- **Vite** : bundler et serveur de développement
+- **Tailwind CSS v4** : styles
+- **shadcn/ui** : composants UI (Dialog, Select, Input…)
+- **React Router v7** : routing côté client
+- **Sonner** : notifications toast
+- **Geist** : police d'écriture
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Prérequis
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+- Node.js >= 18
+- **L'API backend Synkro doit impérativement tourner avant de lancer le client.** Sans elle, l'application ne fonctionnera pas, 
+- aucune page ne sera accessible après la connexion. Voir le README du dépôt backend pour l'installer et la démarrer.
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+## Installation
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+git clone https://github.com/ton-compte/synkro-web.git
+cd synkro-web
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Configuration
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+Crée un fichier `.env` à la racine du projet :
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```env
+VITE_API_URL=http://localhost:8080/api
 ```
+
+Adapte l'URL si ton backend tourne sur un port différent.
+
+## Lancer le projet
+
+```bash
+npm run dev
+```
+
+L'application sera accessible sur `http://localhost:5173`.
+
+## Build de production
+
+```bash
+npm run build
+```
+
+Les fichiers générés se trouvent dans le dossier `dist/`.
+
+## Structure du projet
+
+```
+src/
+├── api/          # Fonctions d'appel à l'API (un fichier par ressource)
+├── components/   # Composants partagés (layout, UI)
+├── context/      # Contexte React (AuthContext)
+├── features/     # Fonctionnalités découpées par domaine
+│   ├── auth/
+│   ├── projects/
+│   ├── tasks/
+│   ├── profile/
+│   └── admin/
+├── hooks/        # Hooks personnalisés (useApi, useApiMutation)
+├── routes.tsx    # Définition des routes
+└── types/        # Types TypeScript partagés (réponses API)
+```
+
+## Fonctionnalités
+
+- Authentification (connexion / inscription) avec JWT
+- Gestion des projets (création, modification, suppression)
+- Gestion des tâches par projet avec suivi des statuts (À faire / En cours / Terminé)
+- Filtre des tâches par statut
+- Gestion des participants (invitation par email, rôles EDITOR / VIEWER)
+- Affectation des tâches aux participants
+- Transfert de propriété d'un projet
+- Espace admin pour la gestion des utilisateurs (réservé aux admins)
